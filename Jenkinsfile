@@ -7,7 +7,7 @@ pipeline {
   stages {
     stage('Start') {
       steps {
-        sh 'echo "Dimulai..."'
+        sh 'echo "START to build from branch ${branchName}"'
         // git 'https://github.com/herdiansc/httpenv.git'
       }
     }
