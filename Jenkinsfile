@@ -8,8 +8,6 @@ pipeline {
     stage('Building Container') {
       steps {
         sh 'echo "Building container from branch ${branchName}"'
-      }
-      steps{
         script {
           dockerImage = docker.build dockerimagename
         }
