@@ -5,15 +5,6 @@ pipeline {
   }
   agent any
   stages {
-    stage('Initialize'){
-      steps {
-        script {
-          def dockerHome = tool 'jenkinsDocker'
-          env.PATH = "${dockerHome}/bin:${env.PATH}"
-        }
-        sh 'usermod -aG docker jenkins'
-      }
-    }
     stage('Building Container') {
       steps {
         sh 'echo "Building container from branch ${branchName}"'
