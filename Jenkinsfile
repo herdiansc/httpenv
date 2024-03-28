@@ -11,7 +11,7 @@ pipeline {
           def dockerHome = tool 'jenkinsDocker'
           env.PATH = "${dockerHome}/bin:${env.PATH}"
         }
-        sh 'sudo usermod -aG docker jenkins'
+        sh 'usermod -aG docker jenkins'
       }
     }
     stage('Building Container') {
