@@ -1,14 +1,18 @@
 pipeline {
-  // environment {
-  //   dockerimagename = "bravinwasike/react-app"
-  //   dockerImage = ""
-  // }
+  environment {
+    dockerimagename = "herdiansc/httpenv"
+    dockerImage = ""
+  }
   agent any
   stages {
-    stage('Start') {
+    stage('Building Container') {
       steps {
-        sh 'echo "START to build from branch ${branchName}"'
-        // git 'https://github.com/herdiansc/httpenv.git'
+        sh 'echo "Building container from branch ${branchName}"'
+      }
+      steps{
+        script {
+          dockerImage = docker.build dockerimagename
+        }
       }
     }
     // stage('Build image') {
