@@ -1,13 +1,14 @@
 pipeline {
-  environment {
-    dockerimagename = "bravinwasike/react-app"
-    dockerImage = ""
-  }
+  // environment {
+  //   dockerimagename = "bravinwasike/react-app"
+  //   dockerImage = ""
+  // }
   agent any
   stages {
-    stage('Checkout Source') {
+    stage('Start') {
       steps {
-        git 'https://github.com/herdiansc/httpenv.git'
+        sh 'echo "Dimulai..."'
+        // git 'https://github.com/herdiansc/httpenv.git'
       }
     }
     // stage('Build image') {
