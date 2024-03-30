@@ -1,50 +1,47 @@
+// - Install Using SSH Agent Plugin
+// - Set credential private key 
 pipeline {
   environment {
-    containerRegistry = "registry:5000"
+    pushContainerRegistry = "registry:5000"
+    pullContainerRegistry = "192.168.234.17:5000"
     serviceAuthor = "herdiansc"
     serviceName = "httpenv"
+    clusterManager = "ubuntu@10.110.96.165"
+    clusterManagerCredId = "multipass-node1"
   }
   agent any
   stages {
-    stage("Checkout") {
-      steps {
-        // Clone configuration reposository into "cbconfig" directory.
-        checkout scm: [
-            $class: 'GitSCM',
-            userRemoteConfigs: [
-              [
-                url: "https://github.com/${serviceAuthor}/${serviceName}",
-              ]
-            ],
-            branches: [
-              [
-                name: "*/${branchName}"
-              ]
-            ],
-            extensions: [
-              [
-                $class: 'RelativeTargetDirectory',
-                relativeTargetDir: 'src'
-              ]
-            ]
-          ],
-          poll: false
-      }
-    }
+    // Comment this stage if using Pipeline script from SCM
+    // stage("Checkout") {
+    //   steps {
+    //     checkout scm: [
+    //         $class: 'GitSCM',
+    //         userRemoteConfigs: [
+    //           [
+    //             url: "https://github.com/${serviceAuthor}/${serviceName}",
+    //           ]
+    //         ],
+    //         branches: [
+    //           [
+    //             name: "*/${branchName}"
+    //           ]
+    //         ],
+    //       ],
+    //       poll: false
+    //   }
+    // }
     stage('Building Image') {
       steps {
         sh 'echo "Building image from branch ${branchName}"'
-        dir('src') {
-          script {
-            dockerImage = docker.build "${serviceAuthor}/${serviceName}"
-          }
+        script {
+          dockerImage = docker.build "${serviceAuthor}/${serviceName}"
         }
       }
     }
     stage('Pushing Image') {
       steps {
         script {
-          docker.withRegistry("http://${containerRegistry}") {
+          docker.withRegistry("http://${pushContainerRegistry}") {
             dockerImage.push("latest")
           }
         }
@@ -52,9 +49,9 @@ pipeline {
     }
     stage('Deploy') {
       steps {
-        sshagent(credentials: ['multipass-node1']) {
-          sh "ssh -o StrictHostKeyChecking=no ubuntu@10.110.96.165 docker service rm ${serviceName}"
-          sh "ssh -o StrictHostKeyChecking=no ubuntu@10.110.96.165 docker service create --name ${serviceName} --replicas 2 -p 8888:8888 192.168.234.17:5000/${serviceAuthor}/${serviceName}"
+        sshagent(credentials: ["${clusterManagerCredId}"]) {
+          sh "ssh -o StrictHostKeyChecking=no ${clusterManager} docker service rm ${serviceName}"
+          sh "ssh -o StrictHostKeyChecking=no ${clusterManager} docker service create --name ${serviceName} --replicas 2 -p 8888:8888 ${pullContainerRegistry}/${serviceAuthor}/${serviceName}"
         }
       }
     }
