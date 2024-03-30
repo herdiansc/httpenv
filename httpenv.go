@@ -8,6 +8,7 @@ import (
 )
 func serve(w http.ResponseWriter, r *http.Request) {
   env := map[string]string{}
+  env["version"] = "0.1"
   for _, keyval := range os.Environ() {
     keyval := strings.SplitN(keyval, "=", 2)
     env[keyval[0]] = keyval[1]
